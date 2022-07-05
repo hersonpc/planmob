@@ -1,9 +1,11 @@
 library(tidyverse)
 
+## Funções utilitarias ----
 is_empty <- function(x) {
     return(is.na(x) | x == "NULL" | x == "")
 }
 
+## Importando os dados base ----
 ceps <- readr::read_csv2("data/RAW_CEPS_GOIANIA.csv")
 ceps2 <-
     ceps |> 
@@ -30,8 +32,10 @@ ceps_geo <-
            LOG = min_log) |> 
     arrange(CEP)
 
+## Gravando dados tratados ----
 readr::write_csv2(ceps_geo, file = "data/CEPS_GEO_GOIANIA.csv")
 
+# Trabalhando as respostas da pesquisa ----
 dados <- readr::read_csv2("Base_Pesquisa.csv") # Trocar por uma chamada a API
 
 OD_GEO <- 
@@ -47,4 +51,35 @@ OD_GEO <-
     filter(!is_empty(LAT_ORIGEM) & !is_empty(LOG_ORIGEM) &
                !is_empty(LAT_DESTINO) & !is_empty(LOG_DESTINO))
 
+## Gravando analise ----
 readr::write_csv2(OD_GEO, file = "data/OD_GOIANIA.csv")
+
+
+# Plotando as origens e destinos no mapa ----
+library(sf)
+library(ggplot2)
+
+# https://ipeagit.github.io/geobr/
+# install.packages("devtools")
+# devtools::install_github("ipeaGIT/geobr", subdir = "r-package")
+library(geobr)
+
+## Obtendo mapa
+goiania_cod_ibge = 5208707 # https://ibge.gov.br/explica/codigos-dos-municipios.php
+goiania <- read_municipality(code_muni = goiania_cod_ibge, 
+                             year = 2020)
+
+## Plot
+OD_GEO |> 
+    ggplot() + 
+    geom_segment(aes(x = LOG_ORIGEM, xend = LOG_DESTINO,
+                     y = LAT_ORIGEM, yend = LAT_DESTINO), alpha = .3) +
+    geom_point(aes(x = LOG_ORIGEM, y = LAT_ORIGEM), size = 2, alpha = .4, col = "darkgreen") +
+    geom_point(aes(x = LOG_DESTINO, y = LAT_DESTINO), size = 1.5, alpha = .4, col = "darkred") +
+    geom_sf(data=goiania, fill="transparent", color="black", size=0.8, show.legend = FALSE) +
+    theme_bw() +
+    labs(title = "Pesquisa OD", 
+         subtitle = "Visualização previa dos pontos válidos (Origem > Destino)",
+         x = "", 
+         y = "", 
+         caption = stringr::str_glue("Fonte: SICTEC em ", as.character(lubridate::now())))

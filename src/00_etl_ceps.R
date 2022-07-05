@@ -6,7 +6,8 @@ is_empty <- function(x) {
 }
 
 ## Importando os dados base ----
-ceps <- readr::read_csv2("data/RAW_CEPS_GOIANIA.csv")
+## Lendo o arquivo de CEPs da base do municipio de Goiânia
+ceps <- readr::read_csv2("data/csv/RAW_CEPS_GOIANIA.csv")
 ceps2 <-
     ceps |> 
     # eliminar dados inconsistentes
@@ -42,7 +43,7 @@ ceps_geo <-
     arrange(CEP)
 
 ## Gravando dados tratados ----
-readr::write_csv2(ceps_geo, file = "data/CEPS_GEO_GOIANIA.csv")
+readr::write_csv2(ceps_geo, file = "data/csv/CEPS_GEO_GOIANIA.csv")
 
 # Trabalhando as respostas da pesquisa ----
 dados <- readr::read_csv2("Base_Pesquisa.csv") # Trocar por uma chamada a API
@@ -68,7 +69,7 @@ OD_GEO <-
                !is_empty(LAT_DESTINO) & !is_empty(LOG_DESTINO))
 
 ## Gravando analise ----
-readr::write_csv2(OD_GEO, file = "data/OD_GOIANIA.csv")
+readr::write_csv2(OD_GEO, file = "data/csv/OD_GOIANIA.csv")
 
 
 # Plotando as origens e destinos no mapa ----

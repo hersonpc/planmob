@@ -202,23 +202,26 @@ readr::write_csv2(select(od_por_zonas, -geometry), "data/csv/OD_POR_AREA.csv")
 OD_GEO_ZONAS |> 
     filter(AREA_DESTINO == "90C") |> 
     ggplot() + 
-    # desenhar as bordas do municipio de goiania
-    # geom_sf(data=goiania, fill="transparent", color="black", size=0.8, show.legend = FALSE) +
+    # desenhar as bordas das zonas de tráfego
     geom_polygon(data = raster::shapefile("data/shapefiles/zonas_trafego/zonas_trafego"),
                  aes(x = long, y = lat, group = group),
-                 colour = "black",
+                 colour = "gray",
                  fill = NA) +
+    # desenhar as bordas do municipio de goiania
+    geom_sf(data=goiania, fill="transparent", color="black", size=0.8, show.legend = FALSE) +
     # desenhar as linhas entre a origem e o destino
     geom_segment(aes(x = LOG_ORIGEM, xend = LOG_DESTINO,
-                     y = LAT_ORIGEM, yend = LAT_DESTINO), alpha = .3) +
+                     y = LAT_ORIGEM, yend = LAT_DESTINO), alpha = .2, col = "green") +
     # desenhar os pontos de origem
     geom_point(aes(x = LOG_ORIGEM, y = LAT_ORIGEM), size = 1, alpha = .4, col = "darkgreen") +
     # desenhar os pontos de destino
     geom_point(aes(x = LOG_DESTINO, y = LAT_DESTINO), size = 1, alpha = .4, col = "darkred") +
+    # limitando as bordas do mapa de goiania
+    coord_sf(xlim = c(-49.07, -49.48), ylim = c(-16.4, -16.9), expand = FALSE) +
     # alterar o fundo padrão
     theme_bw() +
     # especificar os titulos e descrições da imagem
-    labs(title = "Pesquisa OD", 
+    labs(title = "Pesquisa OD - Zona 90C", 
          subtitle = "Visualização previa dos pontos válidos (Origem > Destino)",
          x = "", 
          y = "", 
